@@ -40,15 +40,18 @@
           format="YYYY-MM-DD HH:mm"
           value-format="YYYY-MM-DDTHH:mm:ss.000Z"
           style="width: 100%"
+          @change="handleDateChange"
         />
       </el-form-item>
 
-      <el-form-item label="记录类型" prop="record_type">
-        <el-radio-group v-model="formData.record_type">
-          <el-radio label="countdown">倒计时</el-radio>
-          <el-radio label="elapsed">累计天数</el-radio>
-        </el-radio-group>
-      </el-form-item>
+      <!-- <el-form-item label="记录类型">
+        <el-tag :type="recordTypeTag.type" size="large">
+          {{ recordTypeTag.text }}
+        </el-tag>
+        <span style="margin-left: 12px; color: #909399;">
+          {{ recordTypeTag.hint }}
+        </span>
+      </el-form-item> -->
 
       <el-form-item label="分类" prop="category">
         <el-input
@@ -78,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import dayjs from 'dayjs'
 
 const props = defineProps({
@@ -124,6 +127,48 @@ const formData = reactive({
   color: '#409EFF'
 })
 
+// 自动计算记录类型标签
+// const recordTypeTag = computed(() => {
+//   if (!formData.target_date) {
+//     return {
+//       type: 'info',
+//       text: '请选择日期',
+//       hint: '根据目标日期自动判断'
+//     }
+//   }
+  
+//   const targetDate = dayjs(formData.target_date)
+//   const now = dayjs()
+  
+//   if (targetDate.isAfter(now)) {
+//     return {
+//       type: 'warning',
+//       text: '⏰ 倒计时',
+//       hint: '目标日期在未来'
+//     }
+//   } else {
+//     return {
+//       type: 'success',
+//       text: '📅 累计天数',
+//       hint: '目标日期已过去'
+//     }
+//   }
+// })
+
+// 处理日期变化 - 自动更新 record_type
+const handleDateChange = (value) => {
+  if (!value) {
+    formData.record_type = 'countdown'
+    return
+  }
+  
+  const targetDate = dayjs(value)
+  const now = dayjs()
+  
+  // 自动判断类型
+  formData.record_type = targetDate.isAfter(now) ? 'countdown' : 'elapsed'
+}
+
 // 验证规则
 const rules = {
   title: [
@@ -132,9 +177,6 @@ const rules = {
   ],
   target_date: [
     { required: true, message: '请选择目标日期', trigger: 'change' }
-  ],
-  record_type: [
-    { required: true, message: '请选择记录类型', trigger: 'change' }
   ]
 }
 
@@ -156,6 +198,8 @@ watch(() => props.visible, (val) => {
         category: props.record.category,
         color: props.record.color
       })
+      // 编辑模式也重新计算类型（根据当前时间）
+      handleDateChange(props.record.target_date)
     } else {
       // 创建模式
       isEdit.value = false
