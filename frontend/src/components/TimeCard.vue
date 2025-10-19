@@ -3,26 +3,12 @@
     <template #header>
       <div class="card-header">
         <div class="title-section">
-          <div 
-            class="color-indicator" 
-            :style="{ backgroundColor: record.color }"
-          ></div>
+          <div class="color-indicator" :style="{ backgroundColor: record.color }"></div>
           <h3 class="title">{{ record.title }}</h3>
         </div>
         <div class="actions">
-          <el-button 
-            :icon="Edit" 
-            circle 
-            size="small" 
-            @click="$emit('edit', record)"
-          />
-          <el-button 
-            :icon="Delete" 
-            circle 
-            size="small" 
-            type="danger"
-            @click="$emit('delete', record.id)"
-          />
+          <el-button :icon="Edit" circle size="small" @click="$emit('edit', record)" />
+          <el-button :icon="Delete" circle size="small" type="danger" @click="$emit('delete', record.id)" />
         </div>
       </div>
     </template>
@@ -36,17 +22,23 @@
           <span class="time-unit">{{ timeUnit }}</span>
         </div>
         <div class="display-mode-indicator">
-          <el-icon><Refresh /></el-icon>
+          <el-icon>
+            <Refresh />
+          </el-icon>
         </div>
       </div>
 
       <div class="date-info">
-        <el-icon><Calendar /></el-icon>
+        <el-icon>
+          <Calendar />
+        </el-icon>
         <span>{{ formattedDate }}</span>
       </div>
 
       <div v-if="record.description" class="description">
-        <el-icon><Document /></el-icon>
+        <el-icon>
+          <Document />
+        </el-icon>
         <span>{{ record.description }}</span>
       </div>
 
@@ -54,10 +46,7 @@
         <el-tag v-if="record.category" size="small" effect="plain">
           {{ record.category }}
         </el-tag>
-        <el-tag 
-          :type="record.record_type === 'countdown' ? 'warning' : 'success'" 
-          size="small"
-        >
+        <el-tag :type="record.record_type === 'countdown' ? 'warning' : 'success'" size="small">
           {{ record.record_type === 'countdown' ? '倒计时' : '累计天数' }}
         </el-tag>
       </div>
@@ -135,11 +124,11 @@ const timeValue = computed(() => {
     case 'yearMonthDay':
       // 模式1: 年月天智能显示
       return formatYearMonthDay(totalDays, hours)
-    
+
     case 'totalDays':
       // 模式2: 只显示总天数
       return totalDays
-    
+
     default:
       // 默认使用模式1
       return formatYearMonthDay(totalDays, hours)
@@ -181,32 +170,32 @@ const formatYearMonthDay = (totalDays, hours) => {
 const timeUnit = computed(() => {
   const diff = Math.abs(timeDiff.value)
   const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24))
-  
+
   // 不到1天，不显示单位
   if (totalDays === 0) {
     return ''
   }
-  
+
   const mode = localDisplayMode.value
-  
+
   // 模式1：年月天
   if (mode === 'yearMonthDay') {
     const years = Math.floor(totalDays / 365)
     const remainingDays = totalDays % 365
     const months = Math.floor(remainingDays / 30)
-    
+
     // 只有不到1个月时才显示"天"单位
     if (years === 0 && months === 0) {
       return '天'
     }
     return ''
   }
-  
+
   // 模式2：总天数，始终显示"天"
   if (mode === 'totalDays') {
     return '天'
   }
-  
+
   return ''
 })
 
@@ -231,7 +220,7 @@ const cycleDisplayMode = () => {
   } else {
     localDisplayMode.value = 'yearMonthDay'
   }
-  
+
   // 触发更新事件（可选：保存到后端）
   emit('updateDisplayMode', props.record.id, localDisplayMode.value)
 }

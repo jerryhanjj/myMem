@@ -1,72 +1,26 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="isEdit ? '编辑时间记录' : '创建时间记录'"
-    width="600px"
-    @close="handleClose"
-  >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="rules"
-      label-width="100px"
-      label-position="left"
-    >
+  <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑时间记录' : '创建时间记录'" width="600px" @close="handleClose">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="100px" label-position="left">
       <el-form-item label="标题" prop="title">
-        <el-input
-          v-model="formData.title"
-          placeholder="请输入标题"
-          maxlength="100"
-          show-word-limit
-        />
+        <el-input v-model="formData.title" placeholder="请输入标题" maxlength="100" show-word-limit />
       </el-form-item>
 
       <el-form-item label="描述" prop="description">
-        <el-input
-          v-model="formData.description"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入描述（可选）"
-          maxlength="500"
-          show-word-limit
-        />
+        <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入描述（可选）" maxlength="500"
+          show-word-limit />
       </el-form-item>
 
       <el-form-item label="目标日期" prop="target_date">
-        <el-date-picker
-          v-model="formData.target_date"
-          type="datetime"
-          placeholder="选择日期时间"
-          format="YYYY-MM-DD HH:mm"
-          value-format="YYYY-MM-DDTHH:mm:ss.000Z"
-          style="width: 100%"
-          @change="handleDateChange"
-        />
+        <el-date-picker v-model="formData.target_date" type="datetime" placeholder="选择日期时间" format="YYYY-MM-DD HH:mm"
+          value-format="YYYY-MM-DDTHH:mm:ss.000Z" style="width: 100%" @change="handleDateChange" />
       </el-form-item>
 
-      <!-- <el-form-item label="记录类型">
-        <el-tag :type="recordTypeTag.type" size="large">
-          {{ recordTypeTag.text }}
-        </el-tag>
-        <span style="margin-left: 12px; color: #909399;">
-          {{ recordTypeTag.hint }}
-        </span>
-      </el-form-item> -->
-
       <el-form-item label="分类" prop="category">
-        <el-input
-          v-model="formData.category"
-          placeholder="请输入分类（可选）"
-          maxlength="50"
-        />
+        <el-input v-model="formData.category" placeholder="请输入分类（可选）" maxlength="50" />
       </el-form-item>
 
       <el-form-item label="颜色" prop="color">
-        <el-color-picker
-          v-model="formData.color"
-          show-alpha
-          :predefine="predefineColors"
-        />
+        <el-color-picker v-model="formData.color" show-alpha :predefine="predefineColors" />
         <span style="margin-left: 12px; color: #909399;">选择卡片主题颜色</span>
       </el-form-item>
     </el-form>
@@ -127,44 +81,16 @@ const formData = reactive({
   color: '#409EFF'
 })
 
-// 自动计算记录类型标签
-// const recordTypeTag = computed(() => {
-//   if (!formData.target_date) {
-//     return {
-//       type: 'info',
-//       text: '请选择日期',
-//       hint: '根据目标日期自动判断'
-//     }
-//   }
-  
-//   const targetDate = dayjs(formData.target_date)
-//   const now = dayjs()
-  
-//   if (targetDate.isAfter(now)) {
-//     return {
-//       type: 'warning',
-//       text: '⏰ 倒计时',
-//       hint: '目标日期在未来'
-//     }
-//   } else {
-//     return {
-//       type: 'success',
-//       text: '📅 累计天数',
-//       hint: '目标日期已过去'
-//     }
-//   }
-// })
-
 // 处理日期变化 - 自动更新 record_type
 const handleDateChange = (value) => {
   if (!value) {
     formData.record_type = 'countdown'
     return
   }
-  
+
   const targetDate = dayjs(value)
   const now = dayjs()
-  
+
   // 自动判断类型
   formData.record_type = targetDate.isAfter(now) ? 'countdown' : 'elapsed'
 }
@@ -232,16 +158,16 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     loading.value = true
-    
+
     const submitData = { ...formData }
-    
+
     // 如果是编辑模式，传递 ID
     if (isEdit.value && props.record) {
       emit('submit', props.record.id, submitData)
     } else {
       emit('submit', submitData)
     }
-    
+
     loading.value = false
     handleClose()
   } catch (error) {
